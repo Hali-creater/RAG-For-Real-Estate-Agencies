@@ -7,7 +7,10 @@ from models import Lead, ChatHistory, InternalQuery
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
-client = OpenAI()
+def get_openai_client():
+    if not os.environ.get("OPENAI_API_KEY"):
+        return None
+    return OpenAI()
 
 MASTER_PROMPT = """
 MASTER RAG AGENT PROMPT (REAL ESTATE AI AGENT)
@@ -43,9 +46,17 @@ class MasterRAGAgent:
         self.db.commit()
 
     def handle_customer_query(self, lead_id: int, query: str):
+        client = get_openai_client()
+        if not client:
+            return "Error: OpenAI API key not configured. Please set OPENAI_API_KEY."
+
         # 1. Retrieve relevant context from RAG
-        context_docs = rag_engine.query(query)
-        context_text = "\n\n".join([doc.page_content for doc in context_docs])
+        try:
+            context_docs = rag_engine.query(query)
+            context_text = "\n\n".join([doc.page_content for doc in context_docs])
+        except Exception as e:
+            print(f"RAG Retrieval Error: {e}")
+            context_text = "No additional context available."
 
         # 2. Get chat history
         history = self.get_chat_history(lead_id)
@@ -69,9 +80,17 @@ class MasterRAGAgent:
         return answer
 
     def handle_internal_query(self, agent_name: str, query: str):
+        client = get_openai_client()
+        if not client:
+            return "Error: OpenAI API key not configured. Please set OPENAI_API_KEY."
+
         # Similar logic but focused on internal team needs
-        context_docs = rag_engine.query(query)
-        context_text = "\n\n".join([doc.page_content for doc in context_docs])
+        try:
+            context_docs = rag_engine.query(query)
+            context_text = "\n\n".join([doc.page_content for doc in context_docs])
+        except Exception as e:
+            print(f"RAG Retrieval Error: {e}")
+            context_text = "No additional context available."
 
         messages = [
             {"role": "system", "content": MASTER_PROMPT + f"\n\nYou are currently assisting a team member: {agent_name}. Focus on internal data retrieval and deal-closing insights.\n\nCONTEXT FROM INTERNAL DATA:\n{context_text}"},

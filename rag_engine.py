@@ -10,10 +10,23 @@ from models import Property, Document as DBDocument
 
 class RAGEngine:
     def __init__(self, index_name="real_estate_index"):
-        self.embeddings = OpenAIEmbeddings()
         self.index_name = index_name
         self.vector_store = None
-        self.load_vector_store()
+        self._embeddings = None
+
+    @property
+    def embeddings(self):
+        if self._embeddings is None:
+            if not os.environ.get("OPENAI_API_KEY"):
+                raise ValueError("OPENAI_API_KEY environment variable is not set.")
+            self._embeddings = OpenAIEmbeddings()
+        return self._embeddings
+
+    def initialize(self):
+        try:
+            self.load_vector_store()
+        except Exception as e:
+            print(f"RAG Engine Initialization Error: {e}")
 
     def load_vector_store(self):
         if os.path.exists(self.index_name):
@@ -61,3 +74,4 @@ class RAGEngine:
         return self.vector_store.similarity_search(query_text, k=k)
 
 rag_engine = RAGEngine()
+# We don't initialize here to prevent import-time crashes if API key is missing
