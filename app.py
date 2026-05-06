@@ -14,6 +14,12 @@ st.set_page_config(page_title="Master RAG Real Estate Agent", layout="wide", pag
 # Initialize DB & Scheduler
 init_db()
 start_rag_scheduler()
+rag_engine.initialize()
+
+# Check for API Key
+if not os.environ.get("OPENAI_API_KEY"):
+    st.error("⚠️ OPENAI_API_KEY is not set. Please configure it in your environment variables or Streamlit secrets.")
+    st.stop()
 
 # Navigation
 menu = ["Customer Chat", "Internal Assistant", "Property Management", "Lead Dashboard", "Document Upload"]
