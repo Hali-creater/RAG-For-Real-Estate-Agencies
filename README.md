@@ -16,7 +16,7 @@ An advanced, global AI assistant designed specifically for real estate businesse
 *   **Backend**: Python, FastAPI
 *   **Frontend**: Streamlit
 *   **Database**: SQLite (SQLAlchemy ORM)
-*   **Intelligence**: OpenAI (GPT-4o, Embeddings), LangChain, FAISS
+*   **Intelligence**: Groq (Llama-3.3-70b), LangChain, FAISS, Local Embeddings (HuggingFace)
 *   **Automation**: APScheduler
 
 ## 📂 Project Structure
@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. Configure API Keys
-Ensure your `OPENAI_API_KEY` is set in your environment.
+Ensure your `GROQ_API_KEY` is set in your environment.
 
 ### 3. Run the Application
 
@@ -63,7 +63,7 @@ uvicorn main:app --reload
 1. Push this code to a GitHub repository.
 2. Connect to [Streamlit Cloud](https://share.streamlit.io/).
 3. In settings, ensure the **Main file path** is set to `app.py`.
-4. Add your OpenAI and other secrets in the "Settings > Secrets" section.
+4. Add your Groq and other secrets in the "Settings > Secrets" section.
 
 ### Docker / VPS
 The application can be containerized or run on any VPS supporting Python, providing a robust backend for property data and lead management.

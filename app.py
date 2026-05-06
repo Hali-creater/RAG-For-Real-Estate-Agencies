@@ -17,8 +17,8 @@ start_rag_scheduler()
 rag_engine.initialize()
 
 # Check for API Key
-if not os.environ.get("OPENAI_API_KEY"):
-    st.error("⚠️ OPENAI_API_KEY is not set. Please configure it in your environment variables or Streamlit secrets.")
+if not os.environ.get("GROQ_API_KEY"):
+    st.error("⚠️ GROQ_API_KEY is not set. Please configure it in your environment variables or Streamlit secrets.")
     st.stop()
 
 # Navigation

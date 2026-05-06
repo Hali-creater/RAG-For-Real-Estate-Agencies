@@ -1,16 +1,16 @@
 import os
 import json
 from typing import List, Optional
-from openai import OpenAI
+from langchain_groq import ChatGroq
 from rag_engine import rag_engine
 from models import Lead, ChatHistory, InternalQuery
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
-def get_openai_client():
-    if not os.environ.get("OPENAI_API_KEY"):
+def get_llm():
+    if not os.environ.get("GROQ_API_KEY"):
         return None
-    return OpenAI()
+    return ChatGroq(model="llama-3.3-70b-specdec")
 
 MASTER_PROMPT = """
 MASTER RAG AGENT PROMPT (REAL ESTATE AI AGENT)
@@ -46,9 +46,9 @@ class MasterRAGAgent:
         self.db.commit()
 
     def handle_customer_query(self, lead_id: int, query: str):
-        client = get_openai_client()
-        if not client:
-            return "Error: OpenAI API key not configured. Please set OPENAI_API_KEY."
+        llm = get_llm()
+        if not llm:
+            return "Error: Groq API key not configured. Please set GROQ_API_KEY."
 
         # 1. Retrieve relevant context from RAG
         try:
@@ -61,17 +61,15 @@ class MasterRAGAgent:
         # 2. Get chat history
         history = self.get_chat_history(lead_id)
 
-        # 3. Prepare messages for OpenAI
-        messages = [{"role": "system", "content": MASTER_PROMPT + f"\n\nCONTEXT FROM DATA SOURCE:\n{context_text}"}]
-        messages.extend(history)
-        messages.append({"role": "user", "content": query})
+        # 3. Prepare messages for Groq
+        messages = [("system", MASTER_PROMPT + f"\n\nCONTEXT FROM DATA SOURCE:\n{context_text}")]
+        for h in history:
+            messages.append((h["role"], h["content"]))
+        messages.append(("user", query))
 
-        # 4. Get response from OpenAI
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages
-        )
-        answer = response.choices[0].message.content
+        # 4. Get response from Groq
+        response = llm.invoke(messages)
+        answer = response.content
 
         # 5. Save history
         self.save_message(lead_id, "user", query)
@@ -80,9 +78,9 @@ class MasterRAGAgent:
         return answer
 
     def handle_internal_query(self, agent_name: str, query: str):
-        client = get_openai_client()
-        if not client:
-            return "Error: OpenAI API key not configured. Please set OPENAI_API_KEY."
+        llm = get_llm()
+        if not llm:
+            return "Error: Groq API key not configured. Please set GROQ_API_KEY."
 
         # Similar logic but focused on internal team needs
         try:
@@ -93,15 +91,12 @@ class MasterRAGAgent:
             context_text = "No additional context available."
 
         messages = [
-            {"role": "system", "content": MASTER_PROMPT + f"\n\nYou are currently assisting a team member: {agent_name}. Focus on internal data retrieval and deal-closing insights.\n\nCONTEXT FROM INTERNAL DATA:\n{context_text}"},
-            {"role": "user", "content": query}
+            ("system", MASTER_PROMPT + f"\n\nYou are currently assisting a team member: {agent_name}. Focus on internal data retrieval and deal-closing insights.\n\nCONTEXT FROM INTERNAL DATA:\n{context_text}"),
+            ("user", query)
         ]
 
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages
-        )
-        answer = response.choices[0].message.content
+        response = llm.invoke(messages)
+        answer = response.content
 
         # Save internal query
         internal_rec = InternalQuery(agent_name=agent_name, query=query, response=answer)

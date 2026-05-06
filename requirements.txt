@@ -10,11 +10,11 @@ streamlit
 pandas
 beautifulsoup4
 requests
-openai
 faiss-cpu
 pypdf
 langchain
-langchain-openai
+langchain-groq
 langchain-community
+sentence-transformers
 python-dotenv
 tiktoken
