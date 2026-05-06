@@ -1,6 +1,6 @@
 import os
 from typing import List
-from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
@@ -17,9 +17,8 @@ class RAGEngine:
     @property
     def embeddings(self):
         if self._embeddings is None:
-            if not os.environ.get("OPENAI_API_KEY"):
-                raise ValueError("OPENAI_API_KEY environment variable is not set.")
-            self._embeddings = OpenAIEmbeddings()
+            # Using a lightweight local embedding model
+            self._embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         return self._embeddings
 
     def initialize(self):

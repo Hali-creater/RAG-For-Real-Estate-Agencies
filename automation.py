@@ -1,8 +1,11 @@
 import os
-from openai import OpenAI
+from langchain_groq import ChatGroq
 from communication import send_multilingual_followup
 
-client = OpenAI()
+def get_llm():
+    if not os.environ.get("GROQ_API_KEY"):
+        return None
+    return ChatGroq(model="llama-3.3-70b-specdec")
 
 async def generate_and_send_followup(db, lead_id: int):
     from models import Lead, ChatHistory
@@ -31,10 +34,11 @@ async def generate_and_send_followup(db, lead_id: int):
     Keep it concise and actionable.
     """
 
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    followup_content = response.choices[0].message.content
+    llm = get_llm()
+    if not llm:
+        return
+
+    response = llm.invoke([("user", prompt)])
+    followup_content = response.content
 
     await send_multilingual_followup(lead_id, followup_content, lead.language)
