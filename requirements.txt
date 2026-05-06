@@ -11,3 +11,10 @@ pandas
 beautifulsoup4
 requests
 openai
+faiss-cpu
+pypdf
+langchain
+langchain-openai
+langchain-community
+python-dotenv
+tiktoken
