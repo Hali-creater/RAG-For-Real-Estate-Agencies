@@ -1,24 +1,23 @@
-# SpeedToLead AI: US Realtor Appointment Engine
+# Master RAG Real Estate Agent
 
-A high-performance lead intelligence and automated follow-up system designed for US Real Estate professionals. Convert Zillow, Realtor.com, and Facebook leads into booked appointments with extreme care and precision.
+An advanced, global AI assistant designed specifically for real estate businesses to maximize lead conversion, automate communication, and support both customers and internal teams using Retrieval-Augmented Generation (RAG).
 
 ## 🚀 Key Features
 
-*   **US Market Optimized**: Tailored for Zillow/Realtor.com lead sources and ZIP-code based neighborhood targeting.
-*   **AI Lead Scoring & ROI**: Rule-based engine that classifies leads (**HOT**, **WARM**, **COLD**) and calculates **Estimated Commission ROI** (2.5% standard).
-*   **Automated US Drip Campaigns**: Professional SMS and Email drips (1, 3, and 7 days) with **TCPA/CAN-SPAM Compliance** ("Reply STOP to opt-out").
-*   **Quiet Hours Logic**: Intelligent scheduling that prevents automated SMS during nighttime hours (8 PM - 8 AM).
-*   **Appointment Tracking**: Dedicated dashboard to track booked appointments and sync status.
-*   **Agent Dashboard**: Real-time metrics including "Speed to Lead", "Total ROI", and "Appointment Conversion".
-*   **Flexible UI**: Choice between a powerful **Streamlit** dashboard and a lightweight **FastAPI** web intake form.
+*   **Global RAG Engine**: Intelligently indexes property listings, project brochures (PDFs), FAQs, and internal documents to provide data-driven responses.
+*   **Multilingual Support**: Automatically detects and responds in English, Arabic, Russian, Chinese, and more, making it ideal for international investors and markets.
+*   **Customer Interaction**: Instantly answers property-related questions, recommends relevant listings, and qualifies leads based on budget and preferences.
+*   **Internal Team Assistant**: Helps real estate teams retrieve deal insights, past interactions, and contract details from internal records.
+*   **Investment Guidance**: Provides data-driven analysis on rental yields, ROI, and property comparisons across different markets.
+*   **Automated Nurturing**: Background follow-up engine that continues engagement with leads using personalized, multilingual messages.
 
 ## 🛠️ Tech Stack
 
 *   **Backend**: Python, FastAPI
-*   **Frontend**: Streamlit / Jinja2 + Bootstrap
+*   **Frontend**: Streamlit
 *   **Database**: SQLite (SQLAlchemy ORM)
+*   **Intelligence**: OpenAI (GPT-4o, Embeddings), LangChain, FAISS
 *   **Automation**: APScheduler
-*   **Alerts**: python-telegram-bot
 
 ## 📂 Project Structure
 
@@ -26,14 +25,14 @@ A high-performance lead intelligence and automated follow-up system designed for
 .
 ├── app.py              # Streamlit Application (Main UI)
 ├── main.py             # FastAPI Backend & API
+├── agent_logic.py      # Master RAG Agent Core Logic
+├── rag_engine.py       # Vector Store & Retrieval Logic
 ├── models.py           # Database Models
 ├── database.py         # Database Configuration
-├── lead_scoring.py     # AI Scoring & ROI Logic
-├── communication.py    # US SMS/Email Scripts & Stubs
-├── telegram_bot.py     # Internal Agent Alerts
-├── scheduler.py        # Follow-up Automation
-├── templates/          # HTML Templates for FastAPI
-└── requirements.txt    # Project Dependencies
+├── automation.py       # AI-driven Follow-up Logic
+├── communication.py    # Multilingual Messaging Stubs
+├── telegram_bot.py     # Agent Alert System
+└── scheduler.py        # Background Task Automation
 ```
 
 ## 🚀 Quick Start
@@ -43,36 +42,28 @@ A high-performance lead intelligence and automated follow-up system designed for
 pip install -r requirements.txt
 ```
 
-### 2. Configure Telegram (Optional)
-Set your environment variables:
-```bash
-export TELEGRAM_BOT_TOKEN="your_token"
-export TELEGRAM_CHAT_ID="your_chat_id"
-```
+### 2. Configure API Keys
+Ensure your `OPENAI_API_KEY` is set in your environment.
 
 ### 3. Run the Application
 
-#### Streamlit (Recommended for Dashboards)
+#### Streamlit Dashboard
 ```bash
 streamlit run app.py
 ```
 
-#### FastAPI (Recommended for Web Form Integration)
+#### FastAPI API
 ```bash
 uvicorn main:app --reload
 ```
 
-## 🌐 Deployment Options
+## 🌐 Deployment
 
-### 1. Streamlit Cloud (Free & Easiest)
-*   Push this code to a GitHub repository.
-*   Connect to [Streamlit Cloud](https://share.streamlit.io/).
-*   **IMPORTANT**: In the deployment settings, ensure the **Main file path** is set to `app.py`. (Previously it might have been `real_estate_ai/app.py`).
-*   Add your Telegram secrets in the "Settings > Secrets" section.
+### Streamlit Cloud
+1. Push this code to a GitHub repository.
+2. Connect to [Streamlit Cloud](https://share.streamlit.io/).
+3. In settings, ensure the **Main file path** is set to `app.py`.
+4. Add your OpenAI and other secrets in the "Settings > Secrets" section.
 
-### 2. Render / Heroku / DigitalOcean
-*   You can deploy the FastAPI version as a standard web service.
-*   Use a persistent disk for the `real_estate.db` file if not using an external Postgres database.
-
-### ⚠️ Note on GitHub Pages
-This project **cannot** be deployed on GitHub Pages because it requires a Python backend to handle lead scoring, database storage, and background scheduling. GitHub Pages only supports static files.
+### Docker / VPS
+The application can be containerized or run on any VPS supporting Python, providing a robust backend for property data and lead management.

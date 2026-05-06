@@ -3,7 +3,7 @@ import json
 from typing import List, Optional
 from openai import OpenAI
 from rag_engine import rag_engine
-from models import Lead, ChatHistory
+from models import Lead, ChatHistory, InternalQuery
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
@@ -82,4 +82,11 @@ class MasterRAGAgent:
             model="gpt-4o",
             messages=messages
         )
-        return response.choices[0].message.content
+        answer = response.choices[0].message.content
+
+        # Save internal query
+        internal_rec = InternalQuery(agent_name=agent_name, query=query, response=answer)
+        self.db.add(internal_rec)
+        self.db.commit()
+
+        return answer
