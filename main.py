@@ -2,12 +2,14 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db, init_db
 from agent_logic import MasterRAGAgent
+from scheduler import start_rag_scheduler
 from pydantic import BaseModel
 from typing import List, Optional
 
 app = FastAPI(title="Master RAG Real Estate Agent API")
 
 init_db()
+start_rag_scheduler()
 
 class QueryRequest(BaseModel):
     lead_id: int

@@ -5,13 +5,15 @@ from database import SessionLocal, init_db
 from models import Lead, Property, Document as DBDocument, ChatHistory
 from agent_logic import MasterRAGAgent
 from rag_engine import rag_engine
+from scheduler import start_rag_scheduler
 from datetime import datetime, timezone
 
 # Page Config
 st.set_page_config(page_title="Master RAG Real Estate Agent", layout="wide", page_icon="🏠")
 
-# Initialize DB
+# Initialize DB & Scheduler
 init_db()
+start_rag_scheduler()
 
 # Navigation
 menu = ["Customer Chat", "Internal Assistant", "Property Management", "Lead Dashboard", "Document Upload"]
@@ -112,7 +114,7 @@ elif choice == "Property Management":
     properties = db.query(Property).all()
     if properties:
         df = pd.DataFrame([{
-            "ID": p.id, "Title": p.title, "Price": f"${p.price:,.2f}", "Location": p.location, "Type": p.property_type
+            "ID": p.id, "Title": p.title, "Price": f"{p.price:,.2f}", "Location": p.location, "Type": p.property_type
         } for p in properties])
         st.dataframe(df, use_container_width=True)
 

@@ -51,11 +51,8 @@ class RAGEngine:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
         split_docs = text_splitter.split_documents(docs)
 
-        if self.vector_store:
-            self.vector_store.add_documents(split_docs)
-        else:
-            self.vector_store = FAISS.from_documents(split_docs, self.embeddings)
-
+        # Always re-create the vector store from scratch to avoid duplicates
+        self.vector_store = FAISS.from_documents(split_docs, self.embeddings)
         self.save_vector_store()
 
     def query(self, query_text: str, k=4):
