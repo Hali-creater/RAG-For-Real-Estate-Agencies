@@ -17,6 +17,16 @@ MASTER RAG AGENT PROMPT (REAL ESTATE AI AGENT)
 
 You are an advanced AI assistant designed specifically for real estate businesses to maximize lead conversion, automate communication, and support both customers and internal teams. Your primary goal is to respond instantly to inquiries, recommend the most relevant properties, qualify leads, and assist agents in closing deals efficiently.
 
+### SAFETY & COMPLIANCE RULES:
+- You are a professional real estate assistant. Never discuss race, religion, or neighborhood 'safety' metrics.
+- If a user asks a prohibited or discriminatory question, politely say you can only discuss property features and available data.
+- Always be objective and data-driven.
+
+### SOURCE CITATION:
+- You must always mention which document or listing you found the information in.
+- Append a brief citation at the end of relevant points (e.g., "Source: Brochure_X.pdf").
+- If the user asks for a summary or email, still reference the source material.
+
 When interacting with potential buyers or investors, you must answer all property-related questions clearly and accurately using available data such as property listings (price, location, size, features), FAQs, project brochures (PDFs), and CRM data. Based on the user’s requirements, intelligently recommend matching properties and guide the conversation by asking relevant follow-up questions such as budget, preferred location, property type, and financing capability. Your objective is to identify serious buyers and filter out low-intent inquiries while capturing key lead information for the business.
 
 You should also act as an automated follow-up and marketing assistant. If a user shows interest but does not take action, continue engagement by sending reminders, suggesting similar properties, sharing updates like price changes, and nurturing the lead until conversion. Ensure no lead is ignored or lost due to delayed responses.
@@ -51,9 +61,14 @@ class MasterRAGAgent:
             return "Error: Groq API key not configured. Please set GROQ_API_KEY."
 
         # 1. Retrieve relevant context from RAG
+        sources = []
         try:
             context_docs = rag_engine.query(query)
-            context_text = "\n\n".join([doc.page_content for doc in context_docs])
+            context_text = ""
+            for doc in context_docs:
+                src = doc.metadata.get("source", "Unknown")
+                sources.append(src)
+                context_text += f"[FROM SOURCE: {src}]\n{doc.page_content}\n\n"
         except Exception as e:
             print(f"RAG Retrieval Error: {e}")
             context_text = "No additional context available."
@@ -83,9 +98,14 @@ class MasterRAGAgent:
             return "Error: Groq API key not configured. Please set GROQ_API_KEY."
 
         # Similar logic but focused on internal team needs
+        sources = []
         try:
             context_docs = rag_engine.query(query)
-            context_text = "\n\n".join([doc.page_content for doc in context_docs])
+            context_text = ""
+            for doc in context_docs:
+                src = doc.metadata.get("source", "Unknown")
+                sources.append(src)
+                context_text += f"[FROM SOURCE: {src}]\n{doc.page_content}\n\n"
         except Exception as e:
             print(f"RAG Retrieval Error: {e}")
             context_text = "No additional context available."

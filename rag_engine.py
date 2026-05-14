@@ -44,7 +44,7 @@ class RAGEngine:
         docs = []
         for p in properties:
             content = f"Property: {p.title}\nDescription: {p.description}\nPrice: {p.price}\nLocation: {p.location}\nSize: {p.size}\nFeatures: {p.features}\nType: {p.property_type}"
-            docs.append(LangchainDocument(page_content=content, metadata={"source": "db_property", "id": p.id}))
+            docs.append(LangchainDocument(page_content=content, metadata={"source": f"Property: {p.title}", "id": p.id}))
 
         # Convert DB documents (references to files) to Langchain documents
         db_docs = db.query(DBDocument).all()
@@ -52,10 +52,16 @@ class RAGEngine:
             if os.path.exists(d.file_path):
                 if d.file_path.endswith(".pdf"):
                     loader = PyPDFLoader(d.file_path)
-                    docs.extend(loader.load())
+                    file_docs = loader.load()
+                    for f_doc in file_docs:
+                        f_doc.metadata["source"] = d.title
+                    docs.extend(file_docs)
                 elif d.file_path.endswith(".txt"):
                     loader = TextLoader(d.file_path)
-                    docs.extend(loader.load())
+                    file_docs = loader.load()
+                    for f_doc in file_docs:
+                        f_doc.metadata["source"] = d.title
+                    docs.extend(file_docs)
 
         if not docs:
             return
