@@ -62,8 +62,22 @@ if choice == "Customer Chat":
             with st.chat_message(msg["role"]):
                 st.write(msg["content"])
 
+        # Quick Action Buttons
+        col_btn1, col_btn2, col_btn3 = st.columns(3)
+        q_prompt = None
+        if col_btn1.button("🏠 Summarize Listings"):
+            q_prompt = "Please summarize the available property listings for me."
+        if col_btn2.button("💰 Monthly Payment"):
+            q_prompt = "Can you help me calculate a monthly mortgage payment for a property?"
+        if col_btn3.button("📧 Follow-up Email"):
+            q_prompt = "Write a professional follow-up email for this lead."
+
         # Chat input
-        if prompt := st.chat_input("Ask about properties or investment guidance..."):
+        prompt = st.chat_input("Ask about properties or investment guidance...")
+        if q_prompt:
+            prompt = q_prompt
+
+        if prompt:
             with st.chat_message("user"):
                 st.write(prompt)
 
@@ -71,6 +85,12 @@ if choice == "Customer Chat":
                 with st.spinner("Thinking..."):
                     response = agent.handle_customer_query(lead_id, prompt)
                     st.write(response)
+
+                    # Lead Capture Check (Simulated high-intent detection)
+                    if any(word in response.lower() for word in ["call", "contact", "schedule", "appointment", "visit"]):
+                        st.info("💡 **Lead Intent Detected:** AI suggests capturing contact details for immediate follow-up.")
+                        if st.button("🚀 Push to CRM / Webhook"):
+                            st.success("Lead pushed to CRM and Agent notified via Webhook!")
             st.rerun()
 
 elif choice == "Internal Assistant":
@@ -95,6 +115,10 @@ elif choice == "Internal Assistant":
                 response = agent.handle_internal_query(agent_name, prompt)
                 st.write(response)
                 st.session_state.internal_history.append({"role": "assistant", "content": response})
+
+                # Internal Lead Insight Webhook Simulation
+                if "client" in prompt.lower() or "deal" in prompt.lower():
+                    st.toast("Insight recorded in Internal Audit Log")
 
 elif choice == "Property Management":
     st.title("🏠 Property Listings Management")
