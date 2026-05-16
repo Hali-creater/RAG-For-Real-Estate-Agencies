@@ -15,11 +15,11 @@ st.set_page_config(page_title="Master RAG Real Estate Agent", layout="wide", pag
 st.markdown("""
 <style>
     /* Main Background and Typography */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
 
     .stApp {
-        background: linear-gradient(135deg, #f0f2f6 0%, #ffffff 100%);
-        font-family: 'Inter', sans-serif;
+        background-color: #fcfcfd;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     /* Fade-in Animation */
@@ -28,97 +28,108 @@ st.markdown("""
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Sidebar Styling */
+    /* Sidebar Styling - Light/White Theme */
     section[data-testid="stSidebar"] {
-        background-color: #1a1c23 !important;
-        border-right: 1px solid #2d303e;
+        background-color: #ffffff !important;
+        border-right: 1px solid #f2f4f7;
     }
     section[data-testid="stSidebar"] .stMarkdown h1 {
-        color: #ffffff;
+        color: #101828;
         font-size: 1.5rem;
+        font-weight: 700;
         padding-bottom: 1rem;
     }
     .stSidebar [data-testid="stMarkdownContainer"] p {
-        color: #a0aec0;
+        color: #475467;
     }
 
     /* Radio Button Navigation in Sidebar */
-    div[data-testid="stSidebarNav"] {
-        padding-top: 2rem;
-    }
     .st-emotion-cache-6qob1r {
         background-color: transparent !important;
     }
 
-    /* Chat Message Styling */
+    /* Chat Message Styling with Glassmorphism */
     .stChatMessage {
-        border-radius: 15px;
-        padding: 1.2rem;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        animation: fadeIn 0.5s ease-out;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+        animation: fadeIn 0.4s ease-out;
+        border: 1px solid #f2f4f7;
     }
     [data-testid="stChatMessage"]:nth-child(even) {
-        background-color: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(226, 232, 240, 0.5);
+        background-color: #ffffff;
     }
     [data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: rgba(241, 245, 249, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(203, 213, 225, 0.5);
+        background-color: #f9fafb;
     }
 
-    /* Button Styling */
+    /* Button Styling - Modern Flat Design */
     .stButton>button {
-        border-radius: 8px;
-        border: none;
-        background: #3182ce;
-        color: white;
+        border-radius: 12px;
+        border: 1px solid #d0d5dd;
+        background: white;
+        color: #344054;
         font-weight: 600;
-        transition: all 0.3s ease;
-        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+        padding: 0.6rem 1.2rem;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
     }
     .stButton>button:hover {
-        background: #2b6cb0;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        background: #f9fafb;
+        border-color: #d0d5dd;
+        color: #101828;
+        transform: none;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
     }
 
-    /* Action Buttons (Special) */
+    /* Primary Action Buttons */
     div.stColumns div.stButton>button {
         width: 100%;
-        background: #4a5568;
+        background: #ffffff;
+        border: 1px solid #eaecf0;
     }
     div.stColumns div.stButton>button:hover {
-        background: #2d3748;
+        background: #fefefe;
+        border-color: #d0d5dd;
     }
 
     /* Table Styling */
     [data-testid="stDataFrame"] {
         background: white;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border-radius: 12px;
+        border: 1px solid #eaecf0;
+        overflow: hidden;
     }
 
     /* Status Info Styling */
     .stAlert {
         border-radius: 12px;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 1px solid #eaecf0;
+        background: white;
     }
 
     /* Custom Header Bar */
     .custom-header {
         background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        margin-bottom: 2rem;
+        padding: 2rem;
+        border-radius: 20px;
+        border: 1px solid #eaecf0;
+        margin-bottom: 2.5rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    }
+    .custom-header h1 {
+        font-size: 1.8rem !important;
+        font-weight: 700;
+        color: #101828;
+        margin: 0;
+    }
+    .custom-header span {
+        color: #667085;
+        font-weight: 500;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -214,18 +225,25 @@ if choice == "Customer Chat":
                     response_placeholder.markdown(full_response + "▌")
                 response_placeholder.markdown(full_response)
 
-                # Save to Leads List Button
-                if st.button("💾 Save Chat to Leads List"):
-                    with open("leads_list.csv", "a") as f:
-                        f.write(f"{datetime.now(timezone.utc)},{lead.name},{prompt[:50]},{full_response[:100]}\n")
-                    st.success("Chat saved to Leads List!")
-
-                # Lead Capture Check (Simulated high-intent detection)
-                if any(word in full_response.lower() for word in ["call", "contact", "schedule", "appointment", "visit"]):
-                    st.info("💡 **Lead Intent Detected:** AI suggests capturing contact details for immediate follow-up.")
-                    if st.button("🚀 Push to CRM / Webhook"):
-                        st.success("Lead pushed to CRM and Agent notified via Webhook!")
+                # Store in session state for persistence
+                st.session_state.last_response = full_response
+                st.session_state.last_prompt = prompt
             st.rerun()
+
+        # Interaction Area (persists after response)
+        if "last_response" in st.session_state and lead_id:
+            st.divider()
+            col_save, col_push = st.columns(2)
+            if col_save.button("💾 Save Chat to Leads List"):
+                with open("leads_list.csv", "a") as f:
+                    f.write(f"{datetime.now(timezone.utc)},{lead.name},{st.session_state.last_prompt[:50]},{st.session_state.last_response[:100]}\n")
+                st.success("Chat saved to Leads List!")
+
+            # Lead Capture Check (Simulated high-intent detection)
+            if any(word in st.session_state.last_response.lower() for word in ["call", "contact", "schedule", "appointment", "visit"]):
+                st.info("💡 **Lead Intent Detected:** AI suggests capturing contact details for immediate follow-up.")
+                if col_push.button("🚀 Push to CRM / Webhook"):
+                    st.success("Lead pushed to CRM and Agent notified via Webhook!")
 
 elif choice == "Internal Assistant":
     st.markdown('<div class="custom-header"><h1>💼 Agent Intelligence Hub</h1><span>Internal Data Analytics</span></div>', unsafe_allow_html=True)
