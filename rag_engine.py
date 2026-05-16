@@ -66,7 +66,8 @@ class RAGEngine:
         if not docs:
             return
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        # Optimized chunking for speed and precision (around 1,000 characters)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
         split_docs = text_splitter.split_documents(docs)
 
         # Always re-create the vector store from scratch to avoid duplicates
