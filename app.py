@@ -15,11 +15,26 @@ st.set_page_config(page_title="Master RAG Real Estate Agent", layout="wide", pag
 st.markdown("""
 <style>
     /* Main Background and Typography */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
     .stApp {
-        background-color: #fcfcfd;
+        background: linear-gradient(135deg, #f8f9fc 0%, #f1f4f8 100%);
         font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #d0d5dd;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #98a2b3;
     }
 
     /* Fade-in Animation */
@@ -44,43 +59,64 @@ st.markdown("""
     }
 
     /* Radio Button Navigation in Sidebar */
-    .st-emotion-cache-6qob1r {
-        background-color: transparent !important;
+    div[data-testid="stSidebar"] div[role="radiogroup"] > label {
+        padding: 10px 15px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+        margin-bottom: 4px;
+    }
+
+    div[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
+        background-color: #f0f2f6;
+    }
+
+    div[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
+        background-color: #f0f7ff !important;
+        border: 1px solid #cce4ff !important;
+    }
+
+    div[data-testid="stSidebar"] div[role="radiogroup"] label [data-testid="stMarkdownContainer"] p {
+        font-size: 1.3rem !important;
+        font-weight: 600 !important;
+        color: #101828 !important;
+        line-height: 1.4 !important;
     }
 
     /* Chat Message Styling with Glassmorphism */
     .stChatMessage {
-        border-radius: 20px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
-        animation: fadeIn 0.4s ease-out;
-        border: 1px solid #f2f4f7;
+        border-radius: 24px;
+        padding: 1.8rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        animation: fadeIn 0.5s ease-out;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(8px);
     }
     [data-testid="stChatMessage"]:nth-child(even) {
-        background-color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.7);
     }
     [data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #f9fafb;
+        background-color: rgba(249, 250, 251, 0.7);
     }
 
     /* Button Styling - Modern Flat Design */
     .stButton>button {
-        border-radius: 12px;
-        border: 1px solid #d0d5dd;
+        border-radius: 14px;
+        border: 1px solid #e4e7ec;
         background: white;
         color: #344054;
         font-weight: 600;
-        transition: all 0.2s ease;
-        padding: 0.6rem 1.2rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0.7rem 1.5rem;
         box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
     }
     .stButton>button:hover {
-        background: #f9fafb;
-        border-color: #d0d5dd;
-        color: #101828;
-        transform: none;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+        background: #fcfcfd;
+        border-color: #1570ef;
+        color: #1570ef;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     /* Primary Action Buttons */
@@ -97,9 +133,23 @@ st.markdown("""
     /* Table Styling */
     [data-testid="stDataFrame"] {
         background: white;
-        border-radius: 12px;
+        border-radius: 16px;
         border: 1px solid #eaecf0;
         overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Input Field Styling */
+    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stTextArea>div>div>textarea {
+        border-radius: 12px !important;
+        border: 1px solid #d0d5dd !important;
+        padding: 0.6rem 1rem !important;
+        background-color: white !important;
+        transition: all 0.2s ease !important;
+    }
+    .stTextInput>div>div>input:focus, .stSelectbox>div>div>div:focus, .stTextArea>div>div>textarea:focus {
+        border-color: #1570ef !important;
+        box-shadow: 0 0 0 4px rgba(21, 112, 239, 0.1) !important;
     }
 
     /* Status Info Styling */
@@ -111,15 +161,15 @@ st.markdown("""
 
     /* Custom Header Bar */
     .custom-header {
-        background: white;
-        padding: 2rem;
-        border-radius: 20px;
+        background: linear-gradient(to right, #ffffff, #f9fafb);
+        padding: 2.5rem;
+        border-radius: 24px;
         border: 1px solid #eaecf0;
-        margin-bottom: 2.5rem;
+        margin-bottom: 3rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
     }
     .custom-header h1 {
         font-size: 1.8rem !important;
@@ -148,11 +198,11 @@ if not os.environ.get("GROQ_API_KEY"):
 st.sidebar.title("🏢 Agent Command Center")
 st.sidebar.markdown("---")
 menu = {
-    "1️⃣ 💬 Customer Chat": "Customer Chat",
-    "2️⃣ 💼 Internal Assistant": "Internal Assistant",
-    "3️⃣ 🏠 Property Management": "Property Management",
-    "4️⃣ 📊 Lead Dashboard": "Lead Dashboard",
-    "5️⃣ 📁 Document Upload": "Document Upload"
+    "💬\u00A0\u00A0Customer Chat": "Customer Chat",
+    "💼\u00A0\u00A0Internal Assistant": "Internal Assistant",
+    "🏠\u00A0\u00A0Property Management": "Property Management",
+    "📊\u00A0\u00A0Lead Dashboard": "Lead Dashboard",
+    "📁\u00A0\u00A0Document Upload": "Document Upload"
 }
 st.sidebar.subheader("Main Navigation")
 choice_label = st.sidebar.radio("Navigation", list(menu.keys()), label_visibility="collapsed")
