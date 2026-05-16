@@ -11,6 +11,118 @@ from datetime import datetime, timezone
 # Page Config
 st.set_page_config(page_title="Master RAG Real Estate Agent", layout="wide", page_icon="🏠")
 
+# Custom CSS for Styling
+st.markdown("""
+<style>
+    /* Main Background and Typography */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    .stApp {
+        background: linear-gradient(135deg, #f0f2f6 0%, #ffffff 100%);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Fade-in Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #1a1c23 !important;
+        border-right: 1px solid #2d303e;
+    }
+    section[data-testid="stSidebar"] .stMarkdown h1 {
+        color: #ffffff;
+        font-size: 1.5rem;
+        padding-bottom: 1rem;
+    }
+    .stSidebar [data-testid="stMarkdownContainer"] p {
+        color: #a0aec0;
+    }
+
+    /* Radio Button Navigation in Sidebar */
+    div[data-testid="stSidebarNav"] {
+        padding-top: 2rem;
+    }
+    .st-emotion-cache-6qob1r {
+        background-color: transparent !important;
+    }
+
+    /* Chat Message Styling */
+    .stChatMessage {
+        border-radius: 15px;
+        padding: 1.2rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        animation: fadeIn 0.5s ease-out;
+    }
+    [data-testid="stChatMessage"]:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(226, 232, 240, 0.5);
+    }
+    [data-testid="stChatMessage"]:nth-child(odd) {
+        background-color: rgba(241, 245, 249, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(203, 213, 225, 0.5);
+    }
+
+    /* Button Styling */
+    .stButton>button {
+        border-radius: 8px;
+        border: none;
+        background: #3182ce;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+    }
+    .stButton>button:hover {
+        background: #2b6cb0;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Action Buttons (Special) */
+    div.stColumns div.stButton>button {
+        width: 100%;
+        background: #4a5568;
+    }
+    div.stColumns div.stButton>button:hover {
+        background: #2d3748;
+    }
+
+    /* Table Styling */
+    [data-testid="stDataFrame"] {
+        background: white;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    /* Status Info Styling */
+    .stAlert {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    /* Custom Header Bar */
+    .custom-header {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Initialize DB & Scheduler
 init_db()
 start_rag_scheduler()
@@ -41,7 +153,7 @@ st.sidebar.info("Select a module above to begin. All responses are powered by hi
 db = SessionLocal()
 
 if choice == "Customer Chat":
-    st.title("💬 Customer Interaction")
+    st.markdown('<div class="custom-header"><h1>💬 Customer Interaction Center</h1><span>Powered by Groq Intelligence</span></div>', unsafe_allow_html=True)
 
     # Select or create lead
     leads = db.query(Lead).all()
@@ -116,7 +228,7 @@ if choice == "Customer Chat":
             st.rerun()
 
 elif choice == "Internal Assistant":
-    st.title("💼 Agent Internal Assistant")
+    st.markdown('<div class="custom-header"><h1>💼 Agent Intelligence Hub</h1><span>Internal Data Analytics</span></div>', unsafe_allow_html=True)
     agent_name = st.text_input("Your Name", "Agent Smith")
 
     if "internal_history" not in st.session_state:
@@ -146,7 +258,7 @@ elif choice == "Internal Assistant":
                 st.toast("Insight recorded in Internal Audit Log")
 
 elif choice == "Property Management":
-    st.title("🏠 Property Listings Management")
+    st.markdown('<div class="custom-header"><h1>🏠 Global Property Portfolio</h1><span>Inventory & Distribution</span></div>', unsafe_allow_html=True)
 
     with st.expander("Add New Property"):
         with st.form("add_property"):
@@ -174,7 +286,7 @@ elif choice == "Property Management":
         st.dataframe(df, use_container_width=True)
 
 elif choice == "Lead Dashboard":
-    st.title("📊 Lead Intelligence Dashboard")
+    st.markdown('<div class="custom-header"><h1>📊 Lead Analytics & Tracking</h1><span>Conversion Metrics</span></div>', unsafe_allow_html=True)
     leads = db.query(Lead).all()
     if leads:
         data = []
@@ -188,7 +300,7 @@ elif choice == "Lead Dashboard":
         st.info("No leads captured yet.")
 
 elif choice == "Document Upload":
-    st.title("📁 Document Knowledge Base")
+    st.markdown('<div class="custom-header"><h1>📁 Knowledge Base Engine</h1><span>Document Intelligence</span></div>', unsafe_allow_html=True)
     st.write("Upload PDFs or TXT files (Brochures, FAQs, Contracts, Market Reports)")
 
     doc_type = st.selectbox("Document Type", ["Brochure", "FAQ", "Contract", "Market Report", "Other"])
