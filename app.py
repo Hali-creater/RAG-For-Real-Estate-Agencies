@@ -22,8 +22,21 @@ if not os.environ.get("GROQ_API_KEY"):
     st.stop()
 
 # Navigation
-menu = ["Customer Chat", "Internal Assistant", "Property Management", "Lead Dashboard", "Document Upload"]
-choice = st.sidebar.selectbox("Menu", menu)
+st.sidebar.title("🏢 Agent Command Center")
+st.sidebar.markdown("---")
+menu = {
+    "1️⃣ 💬 Customer Chat": "Customer Chat",
+    "2️⃣ 💼 Internal Assistant": "Internal Assistant",
+    "3️⃣ 🏠 Property Management": "Property Management",
+    "4️⃣ 📊 Lead Dashboard": "Lead Dashboard",
+    "5️⃣ 📁 Document Upload": "Document Upload"
+}
+st.sidebar.subheader("Main Navigation")
+choice_label = st.sidebar.radio("Navigation", list(menu.keys()), label_visibility="collapsed")
+choice = menu[choice_label]
+
+st.sidebar.divider()
+st.sidebar.info("Select a module above to begin. All responses are powered by high-speed Groq inference.")
 
 db = SessionLocal()
 
@@ -131,10 +144,6 @@ elif choice == "Internal Assistant":
             # Internal Lead Insight Webhook Simulation
             if "client" in prompt.lower() or "deal" in prompt.lower():
                 st.toast("Insight recorded in Internal Audit Log")
-
-                # Internal Lead Insight Webhook Simulation
-                if "client" in prompt.lower() or "deal" in prompt.lower():
-                    st.toast("Insight recorded in Internal Audit Log")
 
 elif choice == "Property Management":
     st.title("🏠 Property Listings Management")
