@@ -65,12 +65,12 @@ if choice == "Customer Chat":
         # Quick Action Buttons
         col_btn1, col_btn2, col_btn3 = st.columns(3)
         q_prompt = None
-        if col_btn1.button("🏠 Summarize Listings"):
-            q_prompt = "Please summarize the available property listings for me."
-        if col_btn2.button("💰 Monthly Payment"):
-            q_prompt = "Can you help me calculate a monthly mortgage payment for a property?"
-        if col_btn3.button("📧 Follow-up Email"):
-            q_prompt = "Write a professional follow-up email for this lead."
+        if col_btn1.button("✨ Generate Client Summary"):
+            q_prompt = "Please turn the property details and disclosures into a 5-point bullet list summary for a client."
+        if col_btn2.button("📧 Draft Follow-Up Email"):
+            q_prompt = "Write a professional email pitch to this lead using the property details from our database."
+        if col_btn3.button("🛡️ Run Compliance Check"):
+            q_prompt = "Scan the conversation and property data to ensure there are no legal issues or missing disclosure information."
 
         # Chat input
         prompt = st.chat_input("Ask about properties or investment guidance...")
@@ -82,15 +82,24 @@ if choice == "Customer Chat":
                 st.write(prompt)
 
             with st.chat_message("assistant"):
-                with st.spinner("Thinking..."):
-                    response = agent.handle_customer_query(lead_id, prompt)
-                    st.write(response)
+                response_placeholder = st.empty()
+                full_response = ""
+                for chunk in agent.stream_customer_query(lead_id, prompt):
+                    full_response += chunk
+                    response_placeholder.markdown(full_response + "▌")
+                response_placeholder.markdown(full_response)
 
-                    # Lead Capture Check (Simulated high-intent detection)
-                    if any(word in response.lower() for word in ["call", "contact", "schedule", "appointment", "visit"]):
-                        st.info("💡 **Lead Intent Detected:** AI suggests capturing contact details for immediate follow-up.")
-                        if st.button("🚀 Push to CRM / Webhook"):
-                            st.success("Lead pushed to CRM and Agent notified via Webhook!")
+                # Save to Leads List Button
+                if st.button("💾 Save Chat to Leads List"):
+                    with open("leads_list.csv", "a") as f:
+                        f.write(f"{datetime.now(timezone.utc)},{lead.name},{prompt[:50]},{full_response[:100]}\n")
+                    st.success("Chat saved to Leads List!")
+
+                # Lead Capture Check (Simulated high-intent detection)
+                if any(word in full_response.lower() for word in ["call", "contact", "schedule", "appointment", "visit"]):
+                    st.info("💡 **Lead Intent Detected:** AI suggests capturing contact details for immediate follow-up.")
+                    if st.button("🚀 Push to CRM / Webhook"):
+                        st.success("Lead pushed to CRM and Agent notified via Webhook!")
             st.rerun()
 
 elif choice == "Internal Assistant":
@@ -111,10 +120,17 @@ elif choice == "Internal Assistant":
 
         agent = MasterRAGAgent(db)
         with st.chat_message("assistant"):
-            with st.spinner("Analyzing data..."):
-                response = agent.handle_internal_query(agent_name, prompt)
-                st.write(response)
-                st.session_state.internal_history.append({"role": "assistant", "content": response})
+            response_placeholder = st.empty()
+            full_response = ""
+            for chunk in agent.stream_internal_query(agent_name, prompt):
+                full_response += chunk
+                response_placeholder.markdown(full_response + "▌")
+            response_placeholder.markdown(full_response)
+            st.session_state.internal_history.append({"role": "assistant", "content": full_response})
+
+            # Internal Lead Insight Webhook Simulation
+            if "client" in prompt.lower() or "deal" in prompt.lower():
+                st.toast("Insight recorded in Internal Audit Log")
 
                 # Internal Lead Insight Webhook Simulation
                 if "client" in prompt.lower() or "deal" in prompt.lower():

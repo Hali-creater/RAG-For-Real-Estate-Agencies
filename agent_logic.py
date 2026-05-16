@@ -15,17 +15,12 @@ def get_llm():
 MASTER_PROMPT = """
 MASTER RAG AGENT PROMPT (REAL ESTATE AI AGENT)
 
-You are an advanced AI assistant designed specifically for real estate businesses to maximize lead conversion, automate communication, and support both customers and internal teams. Your primary goal is to respond instantly to inquiries, recommend the most relevant properties, qualify leads, and assist agents in closing deals efficiently.
+You are a precise Real Estate Assistant.
+1. Only answer using the provided context. If the answer is not in the context, say: "I cannot find that detail in the current files. Let me log this for the agent to check."
+2. NEVER mention or analyze neighborhood safety, crime rates, race, or religious demographics (this violates Fair Housing laws).
+3. At the end of EVERY answer, add a section called 'Source Document:' and name the exact file where you found the information.
 
-### SAFETY & COMPLIANCE RULES:
-- You are a professional real estate assistant. Never discuss race, religion, or neighborhood 'safety' metrics.
-- If a user asks a prohibited or discriminatory question, politely say you can only discuss property features and available data.
-- Always be objective and data-driven.
-
-### SOURCE CITATION:
-- You must always mention which document or listing you found the information in.
-- Append a brief citation at the end of relevant points (e.g., "Source: Brochure_X.pdf").
-- If the user asks for a summary or email, still reference the source material.
+Your primary goal is to respond instantly to inquiries, recommend the most relevant properties, qualify leads, and assist agents in closing deals efficiently.
 
 When interacting with potential buyers or investors, you must answer all property-related questions clearly and accurately using available data such as property listings (price, location, size, features), FAQs, project brochures (PDFs), and CRM data. Based on the user’s requirements, intelligently recommend matching properties and guide the conversation by asking relevant follow-up questions such as budget, preferred location, property type, and financing capability. Your objective is to identify serious buyers and filter out low-intent inquiries while capturing key lead information for the business.
 
@@ -55,19 +50,18 @@ class MasterRAGAgent:
         self.db.add(message)
         self.db.commit()
 
-    def handle_customer_query(self, lead_id: int, query: str):
+    def stream_customer_query(self, lead_id: int, query: str):
         llm = get_llm()
         if not llm:
-            return "Error: Groq API key not configured. Please set GROQ_API_KEY."
+            yield "Error: Groq API key not configured. Please set GROQ_API_KEY."
+            return
 
         # 1. Retrieve relevant context from RAG
-        sources = []
         try:
             context_docs = rag_engine.query(query)
             context_text = ""
             for doc in context_docs:
                 src = doc.metadata.get("source", "Unknown")
-                sources.append(src)
                 context_text += f"[FROM SOURCE: {src}]\n{doc.page_content}\n\n"
         except Exception as e:
             print(f"RAG Retrieval Error: {e}")
@@ -82,29 +76,29 @@ class MasterRAGAgent:
             messages.append((h["role"], h["content"]))
         messages.append(("user", query))
 
-        # 4. Get response from Groq
-        response = llm.invoke(messages)
-        answer = response.content
+        # 4. Stream response from Groq
+        full_answer = ""
+        for chunk in llm.stream(messages):
+            content = chunk.content
+            full_answer += content
+            yield content
 
         # 5. Save history
         self.save_message(lead_id, "user", query)
-        self.save_message(lead_id, "assistant", answer)
+        self.save_message(lead_id, "assistant", full_answer)
 
-        return answer
-
-    def handle_internal_query(self, agent_name: str, query: str):
+    def stream_internal_query(self, agent_name: str, query: str):
         llm = get_llm()
         if not llm:
-            return "Error: Groq API key not configured. Please set GROQ_API_KEY."
+            yield "Error: Groq API key not configured. Please set GROQ_API_KEY."
+            return
 
         # Similar logic but focused on internal team needs
-        sources = []
         try:
             context_docs = rag_engine.query(query)
             context_text = ""
             for doc in context_docs:
                 src = doc.metadata.get("source", "Unknown")
-                sources.append(src)
                 context_text += f"[FROM SOURCE: {src}]\n{doc.page_content}\n\n"
         except Exception as e:
             print(f"RAG Retrieval Error: {e}")
@@ -115,12 +109,21 @@ class MasterRAGAgent:
             ("user", query)
         ]
 
-        response = llm.invoke(messages)
-        answer = response.content
+        full_answer = ""
+        for chunk in llm.stream(messages):
+            content = chunk.content
+            full_answer += content
+            yield content
 
         # Save internal query
-        internal_rec = InternalQuery(agent_name=agent_name, query=query, response=answer)
+        internal_rec = InternalQuery(agent_name=agent_name, query=query, response=full_answer)
         self.db.add(internal_rec)
         self.db.commit()
 
-        return answer
+    def handle_customer_query(self, lead_id: int, query: str):
+        # Compatibility wrapper
+        return "".join(list(self.stream_customer_query(lead_id, query)))
+
+    def handle_internal_query(self, agent_name: str, query: str):
+        # Compatibility wrapper
+        return "".join(list(self.stream_internal_query(agent_name, query)))
